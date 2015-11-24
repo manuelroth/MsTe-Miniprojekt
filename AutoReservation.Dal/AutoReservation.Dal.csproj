@@ -51,34 +51,75 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\MsTeMiniproject.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="EntityFramework">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="EntityFramework.SqlServer">
+      <HintPath>..\packages\EntityFramework.6.1.1\lib\net45\EntityFramework.SqlServer.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\AssemblyInfo.Shared.cs">
-      <Link>Properties\AssemblyInfo.Shared.cs</Link>
+    <Compile Include="Auto.cs">
+      <DependentUpon>AutoReservation.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AutoReservation.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AutoReservation.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AutoReservation.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AutoReservation.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AutoReservation.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AutoReservation.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Kunde.cs">
+      <DependentUpon>AutoReservation.tt</DependentUpon>
+    </Compile>
+    <Compile Include="LuxusKlasseAuto.cs">
+      <DependentUpon>AutoReservation.tt</DependentUpon>
+    </Compile>
+    <Compile Include="MittelKlasseAuto.cs">
+      <DependentUpon>AutoReservation.tt</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reservation.cs">
+      <DependentUpon>AutoReservation.tt</DependentUpon>
+    </Compile>
+    <Compile Include="StandardAuto.cs">
+      <DependentUpon>AutoReservation.tt</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\MsTeMiniproject.snk">
-      <Link>MsTeMiniproject.snk</Link>
+    <EntityDeploy Include="AutoReservation.edmx">
+      <Generator>EntityModelCodeGenerator</Generator>
+      <LastGenOutput>AutoReservation.Designer.cs</LastGenOutput>
+    </EntityDeploy>
+    <None Include="App.Config" />
+    <None Include="AutoReservation.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>AutoReservation.edmx</DependentUpon>
+      <LastGenOutput>AutoReservation.Context.cs</LastGenOutput>
+    </None>
+    <None Include="AutoReservation.edmx.diagram">
+      <DependentUpon>AutoReservation.edmx</DependentUpon>
+    </None>
+    <None Include="AutoReservation.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>AutoReservation.edmx</DependentUpon>
+      <LastGenOutput>AutoReservation.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
   </ItemGroup>
