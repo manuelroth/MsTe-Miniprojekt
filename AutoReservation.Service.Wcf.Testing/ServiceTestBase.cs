@@ -20,120 +20,240 @@ namespace AutoReservation.Service.Wcf.Testing
         }
 
         [TestMethod]
-        public void Test_GetAutos()
+        public void AutosTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            List<AutoDto> autos = Target.getAutos();
+            Assert.AreEqual(3, autos.Count);
         }
 
         [TestMethod]
-        public void Test_GetKunden()
+        public void KundenTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            List<KundeDto> kunden = Target.getKunden();
+            Assert.AreEqual(4, kunden.Count);
         }
 
         [TestMethod]
-        public void Test_GetReservationen()
+        public void ReservationenTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            List<ReservationDto> reservations = Target.getReservations();
+            Assert.AreEqual(3, reservations.Count);
         }
 
         [TestMethod]
-        public void Test_GetAutoById()
+        public void GetAutoByIdTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            AutoDto auto = Target.getAuto(1);
+            Assert.AreEqual(1, auto.Id);
+            Assert.AreEqual("Fiat Punto", auto.Marke);
+            Assert.AreEqual(AutoKlasse.Standard, auto.AutoKlasse);
+            Assert.AreEqual(50, auto.Tagestarif);
         }
 
         [TestMethod]
-        public void Test_GetKundeById()
+        public void GetKundeByIdTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            KundeDto kunde = Target.getKunde(1);
+            Assert.AreEqual(1, kunde.Id);
+            Assert.AreEqual("Anna", kunde.Vorname);
+            Assert.AreEqual("Nass", kunde.Nachname);
+            Assert.AreEqual(new DateTime(1961, 5, 5), kunde.Geburtsdatum);
         }
 
         [TestMethod]
-        public void Test_GetReservationByNr()
+        public void GetReservationByNrTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            ReservationDto reservation = Target.getReservation(1);
+            Assert.AreEqual(1, reservation.ReservationNr);
+            Assert.AreEqual(new DateTime(2020, 1, 10), reservation.Von);
+            Assert.AreEqual(new DateTime(2020, 1, 20), reservation.Bis);
+            Assert.AreEqual(1, reservation.Kunde.Id);
+            Assert.AreEqual(1, reservation.Auto.Id);
         }
 
         [TestMethod]
-        public void Test_GetReservationByIllegalNr()
+        public void GetReservationByIllegalNr()
         {
-            Assert.Inconclusive("Test not implemented.");
+            ReservationDto reservation = Target.getReservation(7);
+            Assert.IsNull(reservation);
         }
 
         [TestMethod]
-        public void Test_InsertAuto()
+        public void InsertAutoTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            AutoDto auto = new AutoDto();
+            auto.AutoKlasse = AutoKlasse.Mittelklasse;
+            auto.Tagestarif = 100;
+            auto.Marke = "Wiesmann";
+            AutoDto resultAuto = Target.addAuto(auto);
+            Assert.AreEqual(4, resultAuto.Id);
+            Assert.AreEqual(AutoKlasse.Mittelklasse, resultAuto.AutoKlasse);
+            Assert.AreEqual(100, resultAuto.Tagestarif);
+            Assert.AreEqual("Wiesmann", resultAuto.Marke);
         }
 
         [TestMethod]
-        public void Test_InsertKunde()
+        public void InsertKundeTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            KundeDto kunde = new KundeDto();
+            kunde.Geburtsdatum = new DateTime(1900, 10, 10);
+            kunde.Nachname = "Bock";
+            kunde.Vorname = "Sebastian";
+            KundeDto resultKunde = Target.addKunde(kunde);
+            Assert.AreEqual(5, resultKunde.Id);
+            Assert.AreEqual(new DateTime(1900, 10, 10), resultKunde.Geburtsdatum);
+            Assert.AreEqual("Bock", resultKunde.Nachname);
+            Assert.AreEqual("Sebastian", resultKunde.Vorname);
         }
 
         [TestMethod]
-        public void Test_InsertReservation()
+        public void InsertReservationTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            ReservationDto reservation = new ReservationDto();
+            reservation.Von = new DateTime(1900, 10, 10);
+            reservation.Bis = new DateTime(1980, 10, 10);
+            KundeDto kunde = Target.getKunde(3);
+            reservation.Kunde = kunde;
+            AutoDto auto = Target.getAuto(2);
+            reservation.Auto = auto;
+            ReservationDto resultReservation = Target.addReservation(reservation);
+            Assert.AreEqual(4, resultReservation.ReservationNr);
+            Assert.AreEqual(new DateTime(1900, 10, 10), resultReservation.Von);
+            Assert.AreEqual(new DateTime(1980, 10, 10), resultReservation.Bis);
+            Assert.AreEqual(3, resultReservation.Kunde.Id);
+            Assert.AreEqual(2, resultReservation.Auto.Id);
         }
 
         [TestMethod]
-        public void Test_UpdateAuto()
+        public void UpdateAutoTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            AutoDto originalAuto = Target.getAuto(1);
+            AutoDto modifiedAuto = Target.getAuto(1);
+            modifiedAuto.Marke = "Bugatti";
+            Target.updateAuto(modifiedAuto, originalAuto);
+            AutoDto resultAuto = Target.getAuto(1);
+            Assert.AreEqual("Bugatti", resultAuto.Marke);
         }
 
         [TestMethod]
-        public void Test_UpdateKunde()
+        public void UpdateKundeTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            KundeDto originalKunde = Target.getKunde(1);
+            KundeDto modifiedKunde = Target.getKunde(1);
+            modifiedKunde.Nachname = "Meili";
+            Target.updateKunde(modifiedKunde, originalKunde);
+            KundeDto resultKunde = Target.getKunde(1);
+            Assert.AreEqual("Meili", resultKunde.Nachname);
         }
 
         [TestMethod]
-        public void Test_UpdateReservation()
+        public void UpdateReservationTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            ReservationDto originalReservation = Target.getReservation(1);
+            ReservationDto modifiedReservation = Target.getReservation(1);
+            modifiedReservation.Bis = new DateTime(3000, 11, 11);
+            Target.updateReservation(modifiedReservation, originalReservation);
+            ReservationDto resultReservation = Target.getReservation(1);
+            Assert.AreEqual(new DateTime(3000, 11, 11), resultReservation.Bis);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(FaultException<AutoDto>))]
-        public void Test_UpdateAutoWithOptimisticConcurrency()
+        [ExpectedException(typeof(FaultException<UpdateConcurrencyFault>))]
+        public void UpdateAutoTestWithOptimisticConcurrency()
         {
-            Assert.Inconclusive("Test not implemented.");
+            AutoDto originalAuto = Target.getAuto(1);
+            AutoDto modifiedAuto = Target.getAuto(1);
+            modifiedAuto.Marke = "Bugatti";
+
+            // Between update
+            AutoDto betweenOriginalAuto = Target.getAuto(1);
+            AutoDto betweenModifiedAuto = Target.getAuto(1);
+            betweenModifiedAuto.Marke = "DeLorean";
+            Target.updateAuto(betweenModifiedAuto, betweenOriginalAuto);
+
+            Target.updateAuto(modifiedAuto, originalAuto);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(FaultException<KundeDto>))]
-        public void Test_UpdateKundeWithOptimisticConcurrency()
+        [ExpectedException(typeof(FaultException<UpdateConcurrencyFault>))]
+        public void UpdateKundeTestWithOptimisticConcurrency()
         {
-            Assert.Inconclusive("Test not implemented.");
+            KundeDto originalKunde = Target.getKunde(1);
+            KundeDto modifiedKunde = Target.getKunde(1);
+            modifiedKunde.Nachname = "Meili";
+
+            // Between update
+            KundeDto betweenOriginalKunde = Target.getKunde(1);
+            KundeDto betweenModifiedKunde = Target.getKunde(1);
+            betweenModifiedKunde.Nachname = "Luemmel";
+            Target.updateKunde(betweenModifiedKunde, betweenOriginalKunde);
+
+            Target.updateKunde(modifiedKunde, originalKunde);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(FaultException<ReservationDto>))]
-        public void Test_UpdateReservationWithOptimisticConcurrency()
+        [ExpectedException(typeof(FaultException<UpdateConcurrencyFault>))]
+        public void UpdateReservationTestWithOptimisticConcurrency()
         {
-            Assert.Inconclusive("Test not implemented.");
+            ReservationDto originalReservation = Target.getReservation(1);
+            ReservationDto modifiedReservation = Target.getReservation(1);
+            modifiedReservation.Bis = new DateTime(3000, 11, 11);
+
+            // Between update
+            ReservationDto betweenOriginalReservation = Target.getReservation(1);
+            ReservationDto betweenModifiedReservation = Target.getReservation(1);
+            betweenModifiedReservation.Bis = new DateTime(4000, 11, 11);
+            Target.updateReservation(betweenModifiedReservation, betweenOriginalReservation);
+
+            Target.updateReservation(modifiedReservation, originalReservation);
         }
 
         [TestMethod]
-        public void Test_DeleteKunde()
+        public void DeleteAutoTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            AutoDto auto = Target.getAuto(1);
+            Target.deleteAuto(auto);
+            auto = Target.getAuto(1);
+            Assert.IsNull(auto);
         }
 
         [TestMethod]
-        public void Test_DeleteAuto()
+        public void DeleteKundeTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            KundeDto kunde = Target.getKunde(1);
+            Target.deleteKunde(kunde);
+            kunde = Target.getKunde(1);
+            Assert.IsNull(kunde);
         }
 
         [TestMethod]
-        public void Test_DeleteReservation()
+        public void DeleteReservationTest()
         {
-            Assert.Inconclusive("Test not implemented.");
+            ReservationDto reservation = Target.getReservation(1);
+            Target.deleteReservation(reservation);
+            reservation = Target.getReservation(1);
+            Assert.IsNull(reservation);
         }
+
+        [TestMethod]
+        public void DeleteKundeAndGetReservationTest()
+        {
+            ReservationDto reservation = Target.getReservation(1);
+            KundeDto kunde = reservation.Kunde;
+            Target.deleteKunde(kunde);
+            reservation = Target.getReservation(1);
+            Assert.IsNull(reservation);
+        }
+
+        [TestMethod]
+        public void DeleteAutoAndGetReservationTest()
+        {
+            ReservationDto reservation = Target.getReservation(1);
+            AutoDto auto = reservation.Auto;
+            Target.deleteAuto(auto);
+            reservation = Target.getReservation(1);
+            Assert.IsNull(reservation);
+        }
+
     }
 }

@@ -12,8 +12,8 @@ namespace AutoReservation.Service.Wcf
         private static Auto GetAutoInstance(AutoDto dto)
         {
             if (dto.AutoKlasse == AutoKlasse.Standard) { return new StandardAuto(); }
-            if (dto.AutoKlasse == AutoKlasse.Mittelklasse) { return new MittelklasseAuto(); }
-            if (dto.AutoKlasse == AutoKlasse.Luxusklasse) { return new LuxusklasseAuto(); }
+            if (dto.AutoKlasse == AutoKlasse.Mittelklasse) { return new MittelKlasseAuto(); }
+            if (dto.AutoKlasse == AutoKlasse.Luxusklasse) { return new LuxusKlasseAuto(); }
             throw new NotImplementedException("Unknown AutoDto implementation.");
         }
         public static Auto ConvertToEntity(this AutoDto dto)
@@ -25,9 +25,9 @@ namespace AutoReservation.Service.Wcf
             auto.Marke = dto.Marke;
             auto.Tagestarif = dto.Tagestarif;
 
-            if (auto is LuxusklasseAuto)
+            if (auto is LuxusKlasseAuto)
             {
-                ((LuxusklasseAuto)auto).Basistarif = dto.Basistarif;
+                ((LuxusKlasseAuto)auto).Basistarif = dto.Basistarif;
             }
             return auto;
         }
@@ -43,11 +43,11 @@ namespace AutoReservation.Service.Wcf
             };
 
             if (auto is StandardAuto) { dto.AutoKlasse = AutoKlasse.Standard; }
-            if (auto is MittelklasseAuto) { dto.AutoKlasse = AutoKlasse.Mittelklasse; }
-            if (auto is LuxusklasseAuto)
+            if (auto is MittelKlasseAuto) { dto.AutoKlasse = AutoKlasse.Mittelklasse; }
+            if (auto is LuxusKlasseAuto)
             {
                 dto.AutoKlasse = AutoKlasse.Luxusklasse;
-                dto.Basistarif = ((LuxusklasseAuto)auto).Basistarif;
+                dto.Basistarif = ((LuxusKlasseAuto)auto).Basistarif;
             }
 
 
@@ -103,7 +103,7 @@ namespace AutoReservation.Service.Wcf
 
             Reservation reservation = new Reservation
             {
-                ReservationNr = dto.ReservationNr,
+                ReservationsNr = dto.ReservationNr,
                 Von = dto.Von,
                 Bis = dto.Bis,
                 AutoId = dto.Auto.Id,
@@ -118,7 +118,7 @@ namespace AutoReservation.Service.Wcf
 
             return new ReservationDto
             {
-                ReservationNr = reservation.ReservationNr,
+                ReservationNr = reservation.ReservationsNr,
                 Von = reservation.Von,
                 Bis = reservation.Bis,
                 Auto = ConvertToDto(reservation.Auto),
