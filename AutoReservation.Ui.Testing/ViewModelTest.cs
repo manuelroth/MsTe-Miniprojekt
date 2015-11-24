@@ -1,50 +1,53 @@
 ﻿using AutoReservation.TestEnvironment;
 using AutoReservation.Ui.ViewModels;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using AutoReservation.Ui.Factory;
-using Ninject;
+using System.Windows.Input;
 
 namespace AutoReservation.Ui.Testing
 {
     [TestClass]
     public class ViewModelTest
     {
-        private IKernel kernel;
+
+        private ReservationViewModel viewModel;
 
         [TestInitialize]
         public void InitializeTestData()
         {
-            kernel = new StandardKernel();
-            kernel.Load("Dependencies.Ninject.xml");
-
             TestEnvironmentHelper.InitializeTestData();
-        }
-        
-        [TestMethod]
-        public void Test_AutosLoad()
-        {
-            AutoViewModel vm = new AutoViewModel(kernel.Get<IServiceFactory>());
-            vm.Init();
-
-            Assert.Inconclusive("Test not implemented.");
+            viewModel = new ReservationViewModel();
         }
 
         [TestMethod]
-        public void Test_KundenLoad()
+        public void AutosLoadTest()
         {
-            KundeViewModel vm = new KundeViewModel(kernel.Get<IServiceFactory>());
-            vm.Init();
-
-            Assert.Inconclusive("Test not implemented.");
+            ICommand loadCommand = viewModel.LoadCommand;
+            loadCommand.Execute(null);
+            Assert.AreEqual(viewModel.Autos.Count, 3);
         }
 
         [TestMethod]
-        public void Test_ReservationenLoad()
+        public void KundenLoadTest()
         {
-            ReservationViewModel vm = new ReservationViewModel(kernel.Get<IServiceFactory>());
-            vm.Init();
-
-            Assert.Inconclusive("Test not implemented.");
+            ICommand loadCommand = viewModel.LoadCommand;
+            loadCommand.Execute(null);
+            Assert.AreEqual(viewModel.Kunden.Count, 4);
         }
+
+        [TestMethod]
+        public void ReservationenLoadTest()
+        {
+            ICommand loadCommand = viewModel.LoadCommand;
+            loadCommand.Execute(null);
+            Assert.AreEqual(viewModel.Reservations.Count, 3);
+        }
+
+        [TestMethod]
+        public void ViewCanLoadTest()
+        {
+            ICommand loadCommand = viewModel.LoadCommand;
+            Assert.IsTrue(loadCommand.CanExecute(0));
+        }
+
     }
 }

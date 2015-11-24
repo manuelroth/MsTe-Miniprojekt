@@ -1,28 +1,26 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows.Documents.Serialization;
+using System.Text;
 using System.Windows.Input;
 using AutoReservation.Common.DataTransferObjects;
-using AutoReservation.Common.Extensions;
-using AutoReservation.Ui.Factory;
-using Ninject;
 
 namespace AutoReservation.Ui.ViewModels
 {
     public class AutoViewModel : ViewModelBase
     {
         private readonly List<AutoDto> autosOriginal = new List<AutoDto>();
-        private readonly ObservableCollection<AutoDto> autos = new ObservableCollection<AutoDto>();
-
-        public AutoViewModel(IServiceFactory factory) : base(factory)
-        {
-            
-        }
-
+        private ObservableCollection<AutoDto> autos;
         public ObservableCollection<AutoDto> Autos
         {
-            get { return autos; }
+            get
+            {
+                if (autos == null)
+                {
+                    autos = new ObservableCollection<AutoDto>();
+                }
+                return autos;
+            }
         }
 
         private AutoDto selectedAuto;
@@ -31,12 +29,11 @@ namespace AutoReservation.Ui.ViewModels
             get { return selectedAuto; }
             set
             {
-                if (selectedAuto == value)
+                if (selectedAuto != value)
                 {
-                    return;
+                    selectedAuto = value;
+                    RaisePropertyChanged();
                 }
-                selectedAuto = value;
-                this.OnPropertyChanged(p => p.SelectedAuto);
             }
         }
 
@@ -48,7 +45,14 @@ namespace AutoReservation.Ui.ViewModels
         {
             get
             {
-                return loadCommand ?? (loadCommand = new RelayCommand(param => Load(), param => CanLoad()));
+                if (loadCommand == null)
+                {
+                    loadCommand = new RelayCommand(
+                        param => Load(),
+                        param => CanLoad()
+                    );
+                }
+                return loadCommand;
             }
         }
 
@@ -56,17 +60,17 @@ namespace AutoReservation.Ui.ViewModels
         {
             Autos.Clear();
             autosOriginal.Clear();
-            foreach (var auto in Service.Autos)
+            foreach (AutoDto auto in Service.getAutos())
             {
                 Autos.Add(auto);
-                autosOriginal.Add(auto.Clone());
+                autosOriginal.Add((AutoDto)auto.Clone());
             }
             SelectedAuto = Autos.FirstOrDefault();
         }
 
         private bool CanLoad()
         {
-            return ServiceExists;
+            return Service != null;
         }
 
         #endregion
@@ -79,22 +83,29 @@ namespace AutoReservation.Ui.ViewModels
         {
             get
             {
-                return saveCommand ?? (saveCommand = new RelayCommand(param => SaveData(), param => CanSaveData()));
+                if (saveCommand == null)
+                {
+                    saveCommand = new RelayCommand(
+                        param => SaveData(),
+                        param => CanSaveData()
+                    );
+                }
+                return saveCommand;
             }
         }
 
         private void SaveData()
         {
-            foreach (var auto in Autos)
+            foreach (AutoDto auto in Autos)
             {
                 if (auto.Id == default(int))
                 {
-                    Service.InsertAuto(auto);
+                    Service.addAuto(auto);
                 }
                 else
                 {
-                    var original = autosOriginal.FirstOrDefault(ao => ao.Id == auto.Id);
-                    Service.UpdateAuto(auto, original);
+                    AutoDto original = autosOriginal.FirstOrDefault(ao => ao.Id == auto.Id);
+                    Service.updateAuto(auto, original);
                 }
             }
             Load();
@@ -102,12 +113,24 @@ namespace AutoReservation.Ui.ViewModels
 
         private bool CanSaveData()
         {
-            if (!ServiceExists)
+            if (Service == null)
             {
                 return false;
             }
 
-            return Validate(Autos);
+            StringBuilder errorText = new StringBuilder();
+            foreach (AutoDto auto in Autos)
+            {
+                string error = auto.Validate();
+                if (!string.IsNullOrEmpty(error))
+                {
+                    errorText.AppendLine(auto.ToString());
+                    errorText.AppendLine(error);
+                }
+            }
+
+            ErrorText = errorText.ToString();
+            return string.IsNullOrEmpty(ErrorText);
         }
 
         #endregion
@@ -120,7 +143,14 @@ namespace AutoReservation.Ui.ViewModels
         {
             get
             {
-                return newCommand ?? (newCommand = new RelayCommand(param => New(), param => CanNew()));
+                if (newCommand == null)
+                {
+                    newCommand = new RelayCommand(
+                        param => New(),
+                        param => CanNew()
+                    );
+                }
+                return newCommand;
             }
         }
 
@@ -131,7 +161,7 @@ namespace AutoReservation.Ui.ViewModels
 
         private bool CanNew()
         {
-            return ServiceExists;
+            return Service != null;
         }
 
         #endregion
@@ -144,22 +174,29 @@ namespace AutoReservation.Ui.ViewModels
         {
             get
             {
-                return deleteCommand ?? (deleteCommand = new RelayCommand(param => Delete(), param => CanDelete()));
+                if (deleteCommand == null)
+                {
+                    deleteCommand = new RelayCommand(
+                        param => Delete(),
+                        param => CanDelete()
+                    );
+                }
+                return deleteCommand;
             }
         }
 
         private void Delete()
         {
-            Service.DeleteAuto(SelectedAuto);
+            Service.deleteAuto(SelectedAuto);
             Load();
         }
 
         private bool CanDelete()
         {
             return
-                ServiceExists &&
                 SelectedAuto != null &&
-                SelectedAuto.Id != default(int);
+                SelectedAuto.Id != default(int) &&
+                Service != null;
         }
 
         #endregion

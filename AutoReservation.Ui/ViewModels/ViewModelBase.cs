@@ -1,80 +1,67 @@
-﻿using System.Collections.Generic;
-using AutoReservation.Common.Interfaces;
+﻿using AutoReservation.Common.Interfaces;
 using AutoReservation.Ui.Factory;
 using System.ComponentModel;
-using System.Text;
-using AutoReservation.Common.DataTransferObjects.Core;
-using AutoReservation.Common.Extensions;
+using System.Runtime.CompilerServices;
+using System.Windows;
 
 namespace AutoReservation.Ui.ViewModels
 {
-    public abstract class ViewModelBase : IExtendedNotifyPropertyChanged
+    public abstract class ViewModelBase : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        protected readonly IAutoReservationService Service;
+        private PropertyChangedEventHandler propertyChangedEvent;
 
-        private readonly IServiceFactory factory;
-
-        protected ViewModelBase(IServiceFactory factory)
+        protected ViewModelBase()
         {
-            this.factory = factory;
+            if (!IsInDesignTime)
+            {
+                Service = Creator.GetCreator().CreateInstance();
+                Load();
+            }
         }
 
-        protected IAutoReservationService Service { get; private set; }
-
-        public bool ServiceExists
+        public event PropertyChangedEventHandler PropertyChanged
         {
-            get { return Service  != null; }
-        }
-
-        public void Init()
-        {
-            Service = factory.GetService();
-            Load();
+            add { propertyChangedEvent += value; }
+            remove { propertyChangedEvent -= value; }
         }
 
         protected abstract void Load();
 
-        protected bool Validate(IEnumerable<IValidatable> items) 
-        {
-            var errorText = new StringBuilder();
-            foreach (var item in items)
-            {
-                var error = item.Validate();
-                if (!string.IsNullOrEmpty(error))
-                {
-                    errorText.AppendLine(item.ToString());
-                    errorText.AppendLine(error);
-                }
-            }
-
-            ErrorText = errorText.ToString();
-            return string.IsNullOrEmpty(ErrorText);
-        }
-
         private string errorText;
         public string ErrorText
         {
-            get { return errorText; }
+            get
+            {
+                return errorText;
+            }
             set
             {
-                if (errorText == value)
+                if (errorText != value)
                 {
-                    return;
+                    errorText = value;
+                    RaisePropertyChanged();
                 }
-                errorText = value;
-                this.OnPropertyChanged(p => p.ErrorText);
             }
         }
 
         #region Helper Methods
         
-        void IExtendedNotifyPropertyChanged.OnPropertyChanged(string propertyName)
+        protected void RaisePropertyChanged([CallerMemberName] string propertyName = "")
         {
-            if (PropertyChanged == null)
+            if (propertyChangedEvent != null)
             {
-                return;
+                propertyChangedEvent(this, new PropertyChangedEventArgs(propertyName));
             }
-            PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private bool IsInDesignTime
+        {
+            get
+            {
+                DependencyProperty prop = DesignerProperties.IsInDesignModeProperty;
+                return (bool)DependencyPropertyDescriptor.FromProperty(prop, typeof(FrameworkElement)).Metadata.DefaultValue;
+            }
         }
 
         #endregion

@@ -1,82 +1,208 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
 using System.Windows.Input;
 using AutoReservation.Common.DataTransferObjects;
-using AutoReservation.Common.Extensions;
-using AutoReservation.Ui.Factory;
 
 namespace AutoReservation.Ui.ViewModels
 {
     public class KundeViewModel : ViewModelBase
     {
-        public KundeViewModel(IServiceFactory factory) : base(factory)
-        {
-            
-        }
-
+        private readonly List<KundeDto> kundenOriginal = new List<KundeDto>();
+        private ObservableCollection<KundeDto> kunden;
         public ObservableCollection<KundeDto> Kunden
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                if (kunden == null)
+                {
+                    kunden = new ObservableCollection<KundeDto>();
+                }
+                return kunden;
+            }
         }
 
+        private KundeDto selectedKunde;
         public KundeDto SelectedKunde
         {
-            get { throw new NotImplementedException(); }
-            set { throw new NotImplementedException(); }
+            get { return selectedKunde; }
+            set
+            {
+                if (selectedKunde != value)
+                {
+                    selectedKunde = value;
+                    RaisePropertyChanged();
+                }
+            }
         }
 
 
         #region Load-Command
 
+        private RelayCommand loadCommand;
+
         public ICommand LoadCommand
         {
             get
             {
-                throw new NotImplementedException();
+                if (loadCommand == null)
+                {
+                    loadCommand = new RelayCommand(
+                        param => Load(),
+                        param => CanLoad()
+                    );
+                }
+                return loadCommand;
             }
         }
 
         protected override void Load()
         {
-            
+            Kunden.Clear();
+            kundenOriginal.Clear();
+            foreach (KundeDto kunde in Service.getKunden())
+            {
+                Kunden.Add(kunde);
+                kundenOriginal.Add((KundeDto)kunde.Clone());
+            }
+            SelectedKunde = Kunden.FirstOrDefault();
+        }
+
+        private bool CanLoad()
+        {
+            return Service != null;
         }
 
         #endregion
 
         #region Save-Command
 
+        private RelayCommand saveCommand;
+
         public ICommand SaveCommand
         {
             get
             {
-                throw new NotImplementedException();
+                if (saveCommand == null)
+                {
+                    saveCommand = new RelayCommand(
+                        param => SaveData(),
+                        param => CanSaveData()
+                    );
+                }
+                return saveCommand;
             }
         }
-       
+
+        private void SaveData()
+        {
+            foreach (KundeDto kunde in Kunden)
+            {
+                if (kunde.Id == default(int))
+                {
+                    Service.addKunde(kunde);
+                }
+                else
+                {
+                    KundeDto original = kundenOriginal.FirstOrDefault(ao => ao.Id == kunde.Id);
+                    Service.updateKunde(kunde, original);
+                }
+            }
+            Load();
+        }
+
+        private bool CanSaveData()
+        {
+            if (Service == null)
+            {
+                return false;
+            }
+
+            StringBuilder errorText = new StringBuilder();
+            foreach (KundeDto kunde in Kunden)
+            {
+                string error = kunde.Validate();
+                if (!string.IsNullOrEmpty(error))
+                {
+                    errorText.AppendLine(kunde.ToString());
+                    errorText.AppendLine(error);
+                }
+            }
+
+            ErrorText = errorText.ToString();
+            return string.IsNullOrEmpty(ErrorText);
+        }
+
+
         #endregion
 
         #region New-Command
+
+        private RelayCommand newCommand;
 
         public ICommand NewCommand
         {
             get
             {
-                throw new NotImplementedException();
+                if (newCommand == null)
+                {
+                    newCommand = new RelayCommand(
+                        param => New(),
+                        param => CanNew()
+                    );
+                }
+                return newCommand;
             }
+        }
+
+        private void New()
+        {
+            Kunden.Add(new KundeDto { Geburtsdatum = DateTime.Today });
+        }
+
+        private bool CanNew()
+        {
+            return Service != null;
         }
 
         #endregion
 
         #region Delete-Command
 
+        private RelayCommand deleteCommand;
+
         public ICommand DeleteCommand
         {
             get
             {
-                throw new NotImplementedException();
+                if (deleteCommand == null)
+                {
+                    deleteCommand = new RelayCommand(
+                        param => Delete(),
+                        param => CanDelete()
+                    );
+                }
+                return deleteCommand;
             }
         }
 
+        private void Delete()
+        {
+            Service.deleteKunde(SelectedKunde);
+            Load();
+        }
+
+        private bool CanDelete()
+        {
+            return
+                SelectedKunde != null &&
+                SelectedKunde.Id != default(int) &&
+                Service != null;
+        }
+
         #endregion
+
     }
 }

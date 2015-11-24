@@ -27,10 +27,7 @@ namespace AutoReservation.Ui.ViewModels
         /// Creates a new command that can always execute.
         /// </summary>
         /// <param name="execute">The execution logic.</param>
-        public RelayCommand(Action<object> execute) : this(execute, null)
-        {
-            
-        }
+        public RelayCommand(Action<object> execute) : this(execute, null) { }
 
         /// <summary>
         /// Creates a new command.
@@ -39,10 +36,7 @@ namespace AutoReservation.Ui.ViewModels
         /// <param name="canExecute">The execution status logic.</param>
         public RelayCommand(Action<object> execute, Predicate<object> canExecute)
         {
-            if (execute == null)
-            {
-                throw new ArgumentNullException("execute");
-            }
+            if (execute == null) { throw new ArgumentNullException("execute"); }
 
             this.execute = execute;
             this.canExecute = canExecute;
@@ -66,10 +60,6 @@ namespace AutoReservation.Ui.ViewModels
 
         public void Execute(object parameter)
         {
-            if (!CanExecute(parameter))
-            {
-                return;
-            }
             execute(parameter);
         }
 

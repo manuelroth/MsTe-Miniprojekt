@@ -16,16 +16,13 @@
     <Grid>
         <TabControl>
             <TabItem Header="Autos">
-                <Views:AutoView x:Name="avAutoView"
-                                DataContext="{Binding Path=AutoViewModel, Mode=OneWay}"/>
+                <Views:AutoView x:Name="avAutoView"/>
             </TabItem>
             <TabItem Header="Kunden">
-                <Views:KundeView x:Name="kvKundenView"
-                                 DataContext="{Binding Path=KundeViewModel, Mode=OneWay}"/>
+                <Views:KundeView x:Name="kvKundenView"/>
             </TabItem>
             <TabItem Header="Reservationen">
-                <Views:ReservationView x:Name="kvReservationen"
-                                       DataContext="{Binding Path=ReservationViewModel, Mode=OneWay}"/>
+                <Views:ReservationView x:Name="kvReservationView"/>
             </TabItem>
         </TabControl>
     </Grid>
